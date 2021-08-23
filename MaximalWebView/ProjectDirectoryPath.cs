@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using System;
+namespace MaximalWebView;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 

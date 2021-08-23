@@ -19,7 +19,7 @@ class Program
     internal const uint WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE = Constants.WM_USER + 1;
     private const string StaticFileDirectory = "wwwroot";
     private static CoreWebView2Controller _controller;
-    private static SingleThreadSynchronizationContext _uiThreadSyncCtx;
+    private static UiThreadSynchronizationContext _uiThreadSyncCtx;
 
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
@@ -65,7 +65,7 @@ class Program
                     (char*)classId,
                     windowNamePtr,
                     WINDOW_STYLE.WS_OVERLAPPEDWINDOW,
-                    Constants.CW_USEDEFAULT, Constants.CW_USEDEFAULT, 600, 500,
+                    Constants.CW_USEDEFAULT, Constants.CW_USEDEFAULT, 800, 500,
                     new HWND(),
                     new HMENU(),
                     hInstance,
@@ -78,7 +78,7 @@ class Program
 
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
 
-        _uiThreadSyncCtx = new SingleThreadSynchronizationContext(hwnd);
+        _uiThreadSyncCtx = new UiThreadSynchronizationContext(hwnd);
         SynchronizationContext.SetSynchronizationContext(_uiThreadSyncCtx);
 
         CreateCoreWebView2(hwnd);
@@ -129,6 +129,7 @@ class Program
         var environment = await CoreWebView2Environment.CreateAsync(null, null, null);
 
         _controller = await environment.CreateCoreWebView2ControllerAsync(hwnd);
+        _controller.DefaultBackgroundColor = Color.Transparent; // avoid white flash on first render
 
         PInvoke.GetClientRect(hwnd, out var hwndRect);
 
@@ -139,18 +140,20 @@ class Program
                                                                    StaticFileDirectoryPath,
                                                                    CoreWebView2HostResourceAccessKind.Allow);
         _controller.Bounds = new Rectangle(0, 0, hwndRect.right, hwndRect.bottom);
-        _controller.IsVisible = true;
-        _controller.CoreWebView2.Navigate("https://maximalwebview.example/index.html");
-        //_webApp = await WebApi.StartOnThreadpool();
 
+        _controller.CoreWebView2.Navigate("https://maximalwebview.example/index.html");
+        _controller.IsVisible = true;
+
+        //_webApp = await WebApi.StartOnThreadpool();
         //_controller.CoreWebView2.Navigate("http://localhost:5003/");
     }
 
-    // Set up Hot Reload once at startup
+    
     private static async void CoreWebView2_DOMContentLoadedFirstTime(object sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
         _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
+        // Set up Hot Reload once at startup
         if (Debugger.IsAttached)
         {
             try

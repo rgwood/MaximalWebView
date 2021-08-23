@@ -6,13 +6,10 @@
     <title>Hello, world!</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="./tailwind.css" />
-    <script src="https://unpkg.com/ag-grid-enterprise/dist/ag-grid-enterprise.min.noStyle.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
-    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham-dark.css">
 </head>
 
 <body class="p-5 bg-gray-900 text-indigo-200">
-    <h1 class="mb-5 font-mono text-indigo-400 text-5xl">Hello, 🌍! 🙋‍💾📀</h1>
+    <h1 class="mb-5 font-mono text-indigo-400 text-5xl">Hello, 🌍!</h1>
     <p class="mb-9 ">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump. It has hot reload integrated with <a href="https://tailwindcss.com" target="_blank" class="underline text-indigo-400">Tailwind CSS</a>.</p>
 
 
@@ -30,44 +27,10 @@
         </div>
     </div>
 
-    <div id="myGrid" class="ag-theme-balham-dark" style="height: 600px"></div>
-
-    
-
     <script>
         btn1.onclick = (event) => {
             window.chrome.webview.postMessage("😎💾😎");
         }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const columnDefs = [
-                { headerName: 'Name', field: "name", sortable: true, checkboxSelection: true },
-                { headerName: 'Artist', field: "artist", sortable: true },
-                { headerName: 'Album/Show', field: "album", sortable: true },
-                { headerName: 'Plays', field: "plays", sortable: true },
-                { headerName: 'Date Added', field: "dateAdded", sortable: true },
-            ];
-
-            let response = await fetch("https://maximalwebview.example/data.json");
-            let rowData = await response.json();
-
-            console.log({ rowData });
-
-            // let the grid know which columns and what data to use
-            const gridOptions = {
-                columnDefs: columnDefs,
-                rowData: rowData,
-                //enableRangeSelection: true,
-                rowSelection: 'multiple'
-            };
-
-            // lookup the container we want the Grid to use
-            const eGridDiv = document.querySelector('#myGrid');
-
-            // create the grid passing in the div to use together with the columns & data we want to use
-            new agGrid.Grid(eGridDiv, gridOptions);
-        });
-
     </script>
 </body>
 
