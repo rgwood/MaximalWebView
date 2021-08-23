@@ -4,7 +4,7 @@ using System.Threading;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 
-namespace MinimalWebView
+namespace MaximalWebView
 {
     // based on this very good Stephen Toub article: https://devblogs.microsoft.com/pfxteam/await-synchronizationcontext-and-console-apps/
     internal sealed class SingleThreadSynchronizationContext : SynchronizationContext

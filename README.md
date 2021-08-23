@@ -1,10 +1,10 @@
-# MinimalWebView
+# MaximalWebView
 
 ## tl;dr
 
 A tiny .NET 6 Windows application that hosts web UI in [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). No UI framework, just a plain old Win32 message loop.
 
-![screenshot](https://res.cloudinary.com/reilly-wood/image/upload/v1627014945/github-readmes/MinimalWebView.png)
+![screenshot](https://res.cloudinary.com/reilly-wood/image/upload/v1627014945/github-readmes/MaximalWebView.png)
 
 ## Motivation
 

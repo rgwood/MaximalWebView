@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 /// <summary>
-/// Helper to get the root path of the MinimalWebView project for hot reload scenarios
+/// Helper to get the root path of the MaximalWebView project for hot reload scenarios
 /// https://stackoverflow.com/a/66285728/854694
 /// </summary>
 internal static class ProjectDirectoryPath
