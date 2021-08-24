@@ -12,20 +12,24 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using System.Diagnostics;
 using System.Linq;
 using CliWrap;
+using Microsoft.AspNetCore.Mvc;
 
 
 class Program
 {
     internal const uint WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE = Constants.WM_USER + 1;
     private const string StaticFileDirectory = "wwwroot";
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private static CoreWebView2Controller _controller;
     private static UiThreadSynchronizationContext _uiThreadSyncCtx;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
-    private static ObservableFileSystemWatcher _staticFileWatcher;
-    private static CancellationTokenSource _npxTaskCTS;
-    private static WebApplication _webApp;
+    private static ObservableFileSystemWatcher? _staticFileWatcher;
+    private static CancellationTokenSource? _npxTaskCTS;
+    private static WebApplication? _webApp;
 
     [STAThread]
     static int Main(string[] args)
@@ -136,6 +140,8 @@ class Program
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
         _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
 
+
+
         _controller.CoreWebView2.SetVirtualHostNameToFolderMapping("maximalwebview.example",
                                                                    StaticFileDirectoryPath,
                                                                    CoreWebView2HostResourceAccessKind.Allow);
@@ -148,10 +154,9 @@ class Program
         //_controller.CoreWebView2.Navigate("http://localhost:5003/");
     }
 
-    
-    private static async void CoreWebView2_DOMContentLoadedFirstTime(object sender, CoreWebView2DOMContentLoadedEventArgs e)
+    private static async void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
-        _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
+        _controller!.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
         // Set up Hot Reload once at startup
         if (Debugger.IsAttached)
@@ -180,8 +185,11 @@ class Program
         // terminates the application with no opportunity for cleanup
         _npxTaskCTS = new CancellationTokenSource();
 
-        string NodePath = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles"), @"nodejs\node.exe");
-        string TailwindCliPath = Path.Combine(Environment.GetEnvironmentVariable("AppData"), @"npm\node_modules\tailwindcss\lib\cli.js");
+        string GetEnvVariableOrThrow(string name) =>
+            Environment.GetEnvironmentVariable("ProgramFiles") ?? throw new Exception($"Could not find env variable %{name}%");
+
+        string NodePath = Path.Combine(GetEnvVariableOrThrow("ProgramFiles"), @"nodejs\node.exe");
+        string TailwindCliPath = Path.Combine(GetEnvVariableOrThrow("AppData"), @"npm\node_modules\tailwindcss\lib\cli.js");
 
         // We are calling node.exe directly instead of npx because npx introduces a
         // ghost process that hangs around even if the task is cancelled :(
@@ -220,7 +228,7 @@ class Program
             });
     }
 
-    private static async void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private static async void CoreWebView2_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         var webMessage = e.TryGetWebMessageAsString();
         if (string.IsNullOrEmpty(webMessage))

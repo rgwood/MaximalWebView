@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace MaximalWebView;
+﻿namespace MaximalWebView;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -24,4 +23,3 @@ internal static class ProjectDirectoryPath
     private static string GetSourceFilePathName([CallerFilePath] string? callerFilePath = null)
         => callerFilePath ?? "";
 }
-#nullable restore
