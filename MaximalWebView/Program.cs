@@ -34,6 +34,11 @@ class Program
     [STAThread]
     static int Main(string[] args)
     {
+
+#if DEBUG // Console.WriteLine() lazy debugging enabler
+        PInvoke.AllocConsole();
+#endif
+
         HWND hwnd;
 
         unsafe
