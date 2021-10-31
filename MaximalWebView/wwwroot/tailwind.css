@@ -1,4 +1,4 @@
-/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -475,6 +475,18 @@ button,
   cursor: pointer;
 }
 
+/**
+ * Override legacy focus reset from Normalize with modern Firefox focus styles.
+ *
+ * This is actually an improvement over the new defaults in Firefox in our testing,
+ * as it triggers the better focus styles even for links, which still use a dotted
+ * outline in Firefox by default.
+ */
+
+:-moz-focusring {
+  outline: auto;
+}
+
 table {
   border-collapse: collapse;
 }
@@ -588,20 +600,30 @@ video {
   border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 }
 
-body > * {
-  margin-bottom: 0.75rem;
-}
+/*    body > * {
+        @apply mb-10;
+    }*/
 
 .m-1 {
   margin: 0.25rem;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.my-5 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .mb-5 {
   margin-bottom: 1.25rem;
 }
 
-.mb-9 {
-  margin-bottom: 2.25rem;
+.mb-4 {
+  margin-bottom: 1rem;
 }
 
 .ml-2 {
@@ -620,8 +642,28 @@ body > * {
   border-radius: 9999px;
 }
 
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.rounded-sm {
+  border-radius: 0.125rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
 .border {
   border-width: 1px;
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+.border-4 {
+  border-width: 4px;
 }
 
 .border-gray-500 {
@@ -703,10 +745,6 @@ body > * {
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgba(243, 244, 246, var(--tw-text-opacity));
-}
-
-.underline {
-  text-decoration: underline;
 }
 
 .hover\:bg-indigo-800:hover {

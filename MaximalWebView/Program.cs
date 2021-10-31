@@ -25,6 +25,9 @@ class Program
     private static UiThreadSynchronizationContext _uiThreadSyncCtx;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+    private const int StartingWidth = 620;
+    private const int StartingHeight = 630;
+
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
     private static ObservableFileSystemWatcher? _staticFileWatcher;
@@ -74,7 +77,7 @@ class Program
                     (char*)classId,
                     windowNamePtr,
                     WINDOW_STYLE.WS_OVERLAPPEDWINDOW,
-                    Constants.CW_USEDEFAULT, Constants.CW_USEDEFAULT, 800, 500,
+                    Constants.CW_USEDEFAULT, Constants.CW_USEDEFAULT, StartingWidth, StartingHeight,
                     new HWND(),
                     new HMENU(),
                     hInstance,
@@ -131,6 +134,11 @@ class Program
     {
         if (_controller != null)
             _controller.Bounds = new Rectangle(0, 0, width, height);
+
+        // TODO hook up Serilog instead of hacky console logs
+#if DEBUG
+        Console.WriteLine($"OnSize({width}, {height})");
+#endif
     }
 
     private static async void CreateCoreWebView2(HWND hwnd)
@@ -173,8 +181,8 @@ class Program
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error in Hot Reload:");
-                Debug.WriteLine(ex.Demystify().ToString());
+                Console.WriteLine("Error in Hot Reload:");
+                Console.WriteLine(ex.Demystify().ToString());
             }
         }
     }
@@ -209,8 +217,8 @@ class Program
                     "--jit",
                     "--purge=./*.html" })
             .WithWorkingDirectory(StaticFileDirectoryPath)
-            .WithStandardOutputPipe(PipeTarget.ToDelegate(l => Debug.WriteLine(l)))
-            .WithStandardErrorPipe(PipeTarget.ToDelegate(l => Debug.WriteLine(l)))
+            .WithStandardOutputPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
+            .WithStandardErrorPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
             .ExecuteAsync(_npxTaskCTS.Token);
     }
 
@@ -228,7 +236,7 @@ class Program
             .ObserveOn(_uiThreadSyncCtx)
             .Subscribe(args =>
             {
-                Debug.WriteLine($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
+                Console.WriteLine($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
                 _controller.CoreWebView2.Reload();
             });
     }

@@ -10,20 +10,17 @@
 
 <body class="p-5 bg-gray-900 text-indigo-200">
     <h1 class="mb-5 font-mono text-indigo-400 text-5xl">Hello, 🌍!</h1>
-    <p class="mb-9 ">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump. It has hot reload integrated with <a href="https://tailwindcss.com" target="_blank" class="underline text-indigo-400">Tailwind CSS</a>.</p>
+    <p class="">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
 
+    <button id="btn1" class="bg-indigo-600 hover:bg-indigo-800 text-white font-bold my-5 py-2 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
 
-    <button id="btn1" class="bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full self-center">Click me to demo .NET-JS interop!</button>
-
-    <div class="border border-gray-500 text-sm">
+    <div class="border border-gray-500 text-sm rounded-sm border-2">
         <div id="header" class="bg-gray-800 text-gray-200 grid" style="grid-template-columns: 100px 1fr auto">
-            <span class="m-1 ml-2 font-sans">Output</span>
-            <span onclick="window.chrome.webview.postMessage('❌✖❎')" class="m-1" style="grid-column: 3">✖</span>
+            <span class="m-1 ml-2 font-sans" style="grid-column-start: 0; grid-column-end:1">Example Dialog</span>
+            <button onclick="window.chrome.webview.postMessage('❌✖❎')" class="m-1" style="grid-column: 3">✖</button>
         </div>
         <div id="body" class="m-1 ml-2 font-mono  text-gray-100">
-            <div>FileSystemEvent: Changed tailwind.css</div>
-            <div>FileSystemEvent: Changed tailwind.css</div>
-            <div>The thread 0x3a4c has exited with code 0 (0x0).</div>
+            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
         </div>
     </div>
 
