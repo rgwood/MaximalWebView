@@ -9,11 +9,11 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
 using System.Linq;
 using CliWrap;
 using Microsoft.AspNetCore.Mvc;
-
 
 class Program
 {
@@ -21,12 +21,16 @@ class Program
     private const string StaticFileDirectory = "wwwroot";
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    private static CoreWebView2Controller _controller;
-    private static UiThreadSynchronizationContext _uiThreadSyncCtx;
+    internal static CoreWebView2Controller _controller;
+    internal static UiThreadSynchronizationContext _uiThreadSyncCtx;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    private const int StartingWidth = 620;
-    private const int StartingHeight = 630;
+    private const int StartingWidth = 920;
+    private const int StartingHeight = 930;
+
+     //actually 002b36, Windows uses BBGGRR not RRGGBB
+    const uint solarizedDarkBgColor = 0x362b00;
+
 
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
@@ -49,7 +53,7 @@ class Program
             HINSTANCE hInstance = PInvoke.GetModuleHandle((char*)null);
             ushort classId;
 
-            HBRUSH backgroundBrush = PInvoke.CreateSolidBrush(0x271811); // this is actually #111827, Windows uses BBGGRR
+            HBRUSH backgroundBrush = PInvoke.CreateSolidBrush(solarizedDarkBgColor);
             if (backgroundBrush.IsNull)
             {
                 // fallback to the system background color in case it fails
@@ -88,6 +92,7 @@ class Program
         if (hwnd.Value == 0)
             throw new Exception("hwnd not created");
 
+        SetTitleBarColor(hwnd);
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
 
         _uiThreadSyncCtx = new UiThreadSynchronizationContext(hwnd);
@@ -172,12 +177,13 @@ class Program
         _controller!.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
         // Set up Hot Reload once at startup
+        // TODO move this into hot reload manager
         if (Debugger.IsAttached)
         {
             try
             {
                 SetupAndStartFileSystemWatcher();
-                await SetupAndRunTailwindJIT();
+                //await SetupAndRunTailwindJIT();
             }
             catch (Exception ex)
             {
@@ -231,7 +237,7 @@ class Program
             .Concat(_staticFileWatcher.Created)
             .Concat(_staticFileWatcher.Deleted)
             .Concat(_staticFileWatcher.Renamed)
-            .Buffer(TimeSpan.FromMilliseconds(50))
+            .Buffer(TimeSpan.FromMilliseconds(150))
             .Where(x => x.Any())
             .ObserveOn(_uiThreadSyncCtx)
             .Subscribe(args =>
@@ -239,6 +245,20 @@ class Program
                 Console.WriteLine($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
                 _controller.CoreWebView2.Reload();
             });
+    }
+
+    private static void SetTitleBarColor(HWND hwnd)
+    {
+        unsafe
+        {
+            const uint DWMWA_CAPTION_COLOR = 35;
+            const uint DWMWA_TEXT_COLOR = 36;
+
+            // 0x002b36  RGB (solarized-base03)
+            WInterop.Gdi.Native.COLORREF colorRef = Color.FromArgb(0x00, 0x2b, 0x36);
+            HRESULT setBgResult = PInvoke.DwmSetWindowAttribute(hwnd, (DWMWINDOWATTRIBUTE)DWMWA_CAPTION_COLOR, &colorRef, 4);
+            // TODO: check result, log warning on failure. Likely to fail before Windows 11 
+        }
     }
 
     private static async void CoreWebView2_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)

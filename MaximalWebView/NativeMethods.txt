@@ -42,6 +42,8 @@ SYS_COLOR_INDEX
 
 AllocConsole
 
+DwmSetWindowAttribute
+
 // Window Messages
 WM_NULL
 WM_CREATE

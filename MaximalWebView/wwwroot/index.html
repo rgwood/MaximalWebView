@@ -8,18 +8,20 @@
     <link rel="stylesheet" type="text/css" href="./tailwind.css" />
 </head>
 
-<body class="p-5 bg-gray-900 text-indigo-200">
-    <h1 class="mb-5 font-mono text-indigo-400 text-5xl">Hello, 🌍!</h1>
+<body class="p-5 bg-solarized-base03 text-white">
+    <h1 class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 🌍!</h1>
     <p class="">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
 
-    <button id="btn1" class="bg-indigo-600 hover:bg-indigo-800 text-white font-bold my-5 py-2 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
+    <p id="boundParagraph" class="text-5xl"></p>
 
-    <div class="border border-gray-500 text-sm rounded-sm border-2">
-        <div id="header" class="bg-gray-800 text-gray-200 grid" style="grid-template-columns: 100px 1fr auto">
+    <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
+
+    <div class="border border-solarized-base01 text-sm rounded-sm border-2">
+        <div id="header" class="bg-solarized-base02 grid" style="grid-template-columns: 100px 1fr auto">
             <span class="m-1 ml-2 font-sans" style="grid-column-start: 0; grid-column-end:1">Example Dialog</span>
             <button onclick="window.chrome.webview.postMessage('❌✖❎')" class="m-1" style="grid-column: 3">✖</button>
         </div>
-        <div id="body" class="m-1 ml-2 font-mono  text-gray-100">
+        <div id="body" class="m-1 ml-2 font-mono text-gray-100">
             <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
         </div>
     </div>
