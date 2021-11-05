@@ -1,6 +1,5 @@
 ﻿namespace MaximalWebView;
 using Microsoft.Web.WebView2.Core;
-using Microsoft.AspNetCore.Builder;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -13,7 +12,6 @@ using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
 using System.Linq;
 using CliWrap;
-using Microsoft.AspNetCore.Mvc;
 
 class Program
 {
@@ -36,7 +34,6 @@ class Program
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
     private static ObservableFileSystemWatcher? _staticFileWatcher;
     private static CancellationTokenSource? _npxTaskCTS;
-    private static WebApplication? _webApp;
 
     [STAThread]
     static int Main(string[] args)
@@ -121,11 +118,6 @@ class Program
                 _uiThreadSyncCtx.RunAvailableWorkOnCurrentThread();
                 break;
             case Constants.WM_CLOSE:
-                if(_webApp is not null)
-                {
-                    _uiThreadSyncCtx.Post(async _ => await _webApp.StopAsync(new CancellationTokenSource(millisecondsDelay: 1000).Token), null);
-                    _uiThreadSyncCtx.Post(async _ => await _webApp.DisposeAsync(), null);
-                }
                 _uiThreadSyncCtx.RunAvailableWorkOnCurrentThread();
                 _npxTaskCTS?.Cancel();
                 PInvoke.PostQuitMessage(0);
