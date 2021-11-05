@@ -30,6 +30,7 @@ class Program
      //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
 
+    private static Stopwatch _timeSinceLaunch = Stopwatch.StartNew();
 
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
@@ -137,11 +138,18 @@ class Program
 #endif
     }
 
+    private static void Log(string s)
+    {
+        Console.WriteLine($"{_timeSinceLaunch.ElapsedMilliseconds}ms: {s}");
+    }
+
     private static async void CreateCoreWebView2(HWND hwnd)
     {
         var environment = await CoreWebView2Environment.CreateAsync(null, null, null);
 
         _controller = await environment.CreateCoreWebView2ControllerAsync(hwnd);
+
+        Log("Controller created");
         _controller.DefaultBackgroundColor = Color.Transparent; // avoid white flash on first render
 
         PInvoke.GetClientRect(hwnd, out var hwndRect);
@@ -165,6 +173,7 @@ class Program
 
     private static async void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
+        Log("DomContentLoaded");
         _controller!.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
         // Set up Hot Reload once at startup
