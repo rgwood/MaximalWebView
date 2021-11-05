@@ -21,6 +21,7 @@ class Program
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal static CoreWebView2Controller _controller;
     internal static UiThreadSynchronizationContext _uiThreadSyncCtx;
+    private static HWND _hwnd;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private const int StartingWidth = 920;
@@ -42,8 +43,6 @@ class Program
 #if DEBUG // Console.WriteLine() lazy debugging enabler
         PInvoke.AllocConsole();
 #endif
-
-        HWND hwnd;
 
         unsafe
         {
@@ -73,7 +72,7 @@ class Program
 
             fixed (char* windowNamePtr = $"MaximalWebView {Assembly.GetExecutingAssembly().GetName().Version}")
             {
-                hwnd = PInvoke.CreateWindowEx(
+                _hwnd = PInvoke.CreateWindowEx(
                     0,
                     (char*)classId,
                     windowNamePtr,
@@ -86,16 +85,16 @@ class Program
             }
         }
 
-        if (hwnd.Value == 0)
+        if (_hwnd.Value == 0)
             throw new Exception("hwnd not created");
 
-        SetTitleBarColor(hwnd);
-        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
+        SetTitleBarColor(_hwnd);
+        PInvoke.ShowWindow(_hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
 
-        _uiThreadSyncCtx = new UiThreadSynchronizationContext(hwnd);
+        _uiThreadSyncCtx = new UiThreadSynchronizationContext(_hwnd);
         SynchronizationContext.SetSynchronizationContext(_uiThreadSyncCtx);
 
-        CreateCoreWebView2(hwnd);
+        CreateCoreWebView2(_hwnd);
 
         MSG msg;
         while (PInvoke.GetMessage(out msg, new HWND(), 0, 0))
