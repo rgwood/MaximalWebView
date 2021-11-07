@@ -1,6 +1,7 @@
-﻿namespace MaximalWebView;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+
+namespace MaximalWebView;
 
 /// <summary>
 /// Helper to get the root path of the MaximalWebView project for hot reload scenarios

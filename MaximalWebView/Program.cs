@@ -1,6 +1,4 @@
-﻿namespace MaximalWebView;
-using Microsoft.Web.WebView2.Core;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.Web.WebView2.Core;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -11,18 +9,20 @@ using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
-using System.Linq;
 using CliWrap;
-using Microsoft.AspNetCore.Mvc;
+
+namespace MaximalWebView;
 
 class Program
 {
     internal const uint WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE = Constants.WM_USER + 1;
     private const string StaticFileDirectory = "wwwroot";
+    static string StaticFileDirectoryPath => Path.Combine(ProjectDirectoryPath.Value, StaticFileDirectory);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal static CoreWebView2Controller _controller;
     internal static UiThreadSynchronizationContext _uiThreadSyncCtx;
+    private static HWND _hwnd;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private const int StartingWidth = 920;
@@ -31,12 +31,12 @@ class Program
      //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
 
+    private static Stopwatch _timeSinceLaunch = Stopwatch.StartNew();
 
     // hot reload stuff
     private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
     private static ObservableFileSystemWatcher? _staticFileWatcher;
     private static CancellationTokenSource? _npxTaskCTS;
-    private static WebApplication? _webApp;
 
     [STAThread]
     static int Main(string[] args)
@@ -45,8 +45,6 @@ class Program
 #if DEBUG // Console.WriteLine() lazy debugging enabler
         PInvoke.AllocConsole();
 #endif
-
-        HWND hwnd;
 
         unsafe
         {
@@ -76,7 +74,7 @@ class Program
 
             fixed (char* windowNamePtr = $"MaximalWebView {Assembly.GetExecutingAssembly().GetName().Version}")
             {
-                hwnd = PInvoke.CreateWindowEx(
+                _hwnd = PInvoke.CreateWindowEx(
                     0,
                     (char*)classId,
                     windowNamePtr,
@@ -89,16 +87,16 @@ class Program
             }
         }
 
-        if (hwnd.Value == 0)
+        if (_hwnd.Value == 0)
             throw new Exception("hwnd not created");
 
-        SetTitleBarColor(hwnd);
-        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
+        SetTitleBarColor(_hwnd);
+        PInvoke.ShowWindow(_hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
 
-        _uiThreadSyncCtx = new UiThreadSynchronizationContext(hwnd);
+        _uiThreadSyncCtx = new UiThreadSynchronizationContext(_hwnd);
         SynchronizationContext.SetSynchronizationContext(_uiThreadSyncCtx);
 
-        CreateCoreWebView2(hwnd);
+        CreateCoreWebView2(_hwnd);
 
         MSG msg;
         while (PInvoke.GetMessage(out msg, new HWND(), 0, 0))
@@ -121,11 +119,6 @@ class Program
                 _uiThreadSyncCtx.RunAvailableWorkOnCurrentThread();
                 break;
             case Constants.WM_CLOSE:
-                if(_webApp is not null)
-                {
-                    _uiThreadSyncCtx.Post(async _ => await _webApp.StopAsync(new CancellationTokenSource(millisecondsDelay: 1000).Token), null);
-                    _uiThreadSyncCtx.Post(async _ => await _webApp.DisposeAsync(), null);
-                }
                 _uiThreadSyncCtx.RunAvailableWorkOnCurrentThread();
                 _npxTaskCTS?.Cancel();
                 PInvoke.PostQuitMessage(0);
@@ -146,40 +139,73 @@ class Program
 #endif
     }
 
+    private static void Log(string s) => Console.WriteLine($"{_timeSinceLaunch.ElapsedMilliseconds}ms: {s}");
+
     private static async void CreateCoreWebView2(HWND hwnd)
     {
         var environment = await CoreWebView2Environment.CreateAsync(null, null, null);
 
         _controller = await environment.CreateCoreWebView2ControllerAsync(hwnd);
+
+        Log("Controller created");
         _controller.DefaultBackgroundColor = Color.Transparent; // avoid white flash on first render
 
         PInvoke.GetClientRect(hwnd, out var hwndRect);
+        _controller.Bounds = new Rectangle(0, 0, hwndRect.right, hwndRect.bottom);
 
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
         _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
 
-
-
-        _controller.CoreWebView2.SetVirtualHostNameToFolderMapping("maximalwebview.example",
-                                                                   StaticFileDirectoryPath,
-                                                                   CoreWebView2HostResourceAccessKind.Allow);
-        _controller.Bounds = new Rectangle(0, 0, hwndRect.right, hwndRect.bottom);
+        if(HotReloadManager.IsHotReloadEnabled()) // serve static files from filesystem
+        {
+            // TODO find a better hostname than maximalwebview.example
+            _controller.CoreWebView2.SetVirtualHostNameToFolderMapping("maximalwebview.example",
+                                                                       StaticFileDirectoryPath,
+                                                                       CoreWebView2HostResourceAccessKind.Allow);
+        }
+        else // serve static files embedded in assembly
+        {
+            _controller.CoreWebView2.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
+            _controller.CoreWebView2.WebResourceRequested += ServeStaticFileFromEmbeddedResources;
+        }
 
         _controller.CoreWebView2.Navigate("https://maximalwebview.example/index.html");
         _controller.IsVisible = true;
-
-        //_webApp = await WebApi.StartOnThreadpool();
-        //_controller.CoreWebView2.Navigate("http://localhost:5003/");
     }
 
-    private static async void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
+    private static void ServeStaticFileFromEmbeddedResources(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
     {
-        _controller!.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
+        Uri uri = new(e.Request.Uri);
+        Log("Resource requested: " + uri.ToString());
+
+        string localPath = uri.LocalPath[1..];
+        var assembly = Assembly.GetEntryAssembly();
+        if (assembly != null)
+        {
+            // TODO clean this up, there's probably a less hacky way that doesn't involve string replacement
+            var stream = assembly.GetManifestResourceStream($"{nameof(MaximalWebView)}.{StaticFileDirectory}.{localPath.Replace("/", ".")}");
+
+            if (stream != null)
+            {
+                e.Response = _controller.CoreWebView2.Environment.CreateWebResourceResponse(stream, 200, "OK", "");
+            }
+            else
+            {
+                e.Response = _controller.CoreWebView2.Environment.CreateWebResourceResponse(null, 404, "NOTFOUND", "");
+            }
+        }
+    }
+
+    private static void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
+    {
+        Log("DomContentLoaded");
+        _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
         // Set up Hot Reload once at startup
         // TODO move this into hot reload manager
-        if (Debugger.IsAttached)
+        if (HotReloadManager.IsHotReloadEnabled())
         {
+            Console.WriteLine("Hot reload is enabled.");
             try
             {
                 SetupAndStartFileSystemWatcher();
@@ -187,16 +213,13 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in Hot Reload:");
+                Console.WriteLine("Error setting up Hot Reload:");
                 Console.WriteLine(ex.Demystify().ToString());
             }
         }
     }
 
-    // If a debugger is attached (i.e. we're doing hot reload), get the path relative to the project directory
-    static string StaticFileDirectoryPath
-        => Debugger.IsAttached ? Path.Combine(ProjectDirectoryPath.Value, StaticFileDirectory) : StaticFileDirectory;
-
+    // TODO: switch to running Tailwind on-demand instead of keeping it running with a watch. Ordering gets tricky when we have multiple filesystem watchers...
     private static async Task SetupAndRunTailwindJIT()
     {
         // TODO: clean up any orphaned Node processes from previous runs
@@ -230,6 +253,7 @@ class Program
 
     private static void SetupAndStartFileSystemWatcher()
     {
+        Console.WriteLine("Setting up filesystem watcher...");
         _staticFileWatcher = new ObservableFileSystemWatcher(new FileSystemWatcher(StaticFileDirectoryPath));
         _staticFileWatcher.Start();
 
@@ -252,7 +276,6 @@ class Program
         unsafe
         {
             const uint DWMWA_CAPTION_COLOR = 35;
-            const uint DWMWA_TEXT_COLOR = 36;
 
             // 0x002b36  RGB (solarized-base03)
             WInterop.Gdi.Native.COLORREF colorRef = Color.FromArgb(0x00, 0x2b, 0x36);
