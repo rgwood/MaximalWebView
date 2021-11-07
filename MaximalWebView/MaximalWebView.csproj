@@ -10,7 +10,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Can probably replace this with globs once we separate static file inputs and outputs -->
   <ItemGroup>
+    <None Remove="wwwroot\index.html" />
+    <None Remove="wwwroot\tailwind.css" />
+    <EmbeddedResource Include="wwwroot\index.html">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\tailwind.css">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -27,15 +36,6 @@
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="wwwroot\index.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="wwwroot\tailwind.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
