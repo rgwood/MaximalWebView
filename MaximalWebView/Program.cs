@@ -1,5 +1,4 @@
-﻿namespace MaximalWebView;
-using Microsoft.Web.WebView2.Core;
+﻿using Microsoft.Web.WebView2.Core;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -10,8 +9,9 @@ using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
-using System.Linq;
 using CliWrap;
+
+namespace MaximalWebView;
 
 class Program
 {
