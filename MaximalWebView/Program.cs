@@ -165,7 +165,7 @@ class Program
         }
         else // serve static files embedded in assembly
         {
-            _controller.CoreWebView2.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
+            _controller.CoreWebView2.AddWebResourceRequestedFilter("*://maximalwebview.example/*", CoreWebView2WebResourceContext.All);
             _controller.CoreWebView2.WebResourceRequested += ServeStaticFileFromEmbeddedResources;
         }
 
