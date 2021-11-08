@@ -15,15 +15,15 @@ internal sealed class UiThreadSynchronizationContext : SynchronizationContext
         this.hwnd = hwnd;
     }
 
-    public override void Post(SendOrPostCallback d, object state)
+    public override void Post(SendOrPostCallback d, object? state)
     {
-        m_queue.Add(new KeyValuePair<SendOrPostCallback, object>(d, state));
+        m_queue.Add(new KeyValuePair<SendOrPostCallback, object?>(d, state));
         PInvoke.PostMessage(hwnd, Program.WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE, 0, 0);
     }
 
-    public override void Send(SendOrPostCallback d, object state)
+    public override void Send(SendOrPostCallback d, object? state)
     {
-        m_queue.Add(new KeyValuePair<SendOrPostCallback, object>(d, state));
+        m_queue.Add(new KeyValuePair<SendOrPostCallback, object?>(d, state));
         PInvoke.SendMessage(hwnd, Program.WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE, 0, 0);
     }
 
