@@ -8,13 +8,39 @@
     <link rel="stylesheet" type="text/css" href="./tailwind.css" />
 </head>
 
-<body class="p-5 bg-solarized-base03 text-white">
+<body class="p-6 bg-solarized-base03 text-white">
+
+    <!--<script type="module">
+            import { h, Component, render } from 'https://unpkg.com/preact?module';
+            import htm from 'https://unpkg.com/htm?module';
+
+            // Initialize htm with Preact
+            const html = htm.bind(h);
+
+            const app = html`
+                <h1 class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 💾!</h1>
+
+                <p class="text-solarized-base2">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
+
+                <div class="space-x-2">
+
+                <button id="btn1" class="bg-solarized-yellow hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-sm self-center">Click me to demo .NET-JS interop!</button>
+                <button id="btn2" class="bg-solarized-orange hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-sm self-center">💾</button>
+
+                </div>
+
+                <img src="./homer.jpg"></img>
+    `
+            render(app, document.body);
+        </script>-->
     <h1 class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 🌍!</h1>
     <p class="">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
 
     <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
 
-    <div class="border border-solarized-base01 text-sm rounded-sm border-2">
+    <img src="./homer.jpg"/>
+
+    <div class="hidden border border-solarized-base01 text-sm rounded-sm border-2">
         <div id="header" class="bg-solarized-base02 grid" style="grid-template-columns: 100px 1fr auto">
             <span class="m-1 ml-2 font-sans" style="grid-column-start: 0; grid-column-end:1">Example Dialog</span>
             <button onclick="window.chrome.webview.postMessage('❌✖❎')" class="m-1" style="grid-column: 3">✖</button>

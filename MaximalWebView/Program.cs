@@ -1,4 +1,5 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Web.WebView2.Core;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -10,6 +11,8 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
 using CliWrap;
+using CliWrap.Buffered;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace MaximalWebView;
 
@@ -26,7 +29,7 @@ class Program
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private const int StartingWidth = 920;
-    private const int StartingHeight = 930;
+    private const int StartingHeight = 1050;
 
      //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
@@ -41,10 +44,34 @@ class Program
     [STAThread]
     static int Main(string[] args)
     {
+         //SuperluminalPerf.Initialize();
 
 #if DEBUG // Console.WriteLine() lazy debugging enabler
         PInvoke.AllocConsole();
 #endif
+
+        SuperluminalPerf.BeginEvent("Initializing logger");
+
+#if DEBUG // Full console log initialization takes ~200ms in Superluminal. Disable for fast startup
+        using var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug);
+            //.AddConsole();
+        });
+
+        ILogger logger = loggerFactory.CreateLogger<Program>();
+#else
+        ILogger logger = NullLogger.Instance;
+#endif
+
+        SuperluminalPerf.EndEvent();
+
+        SuperluminalPerf.BeginEvent("Logging");
+        logger.LogInformation($"Example log message");
+        SuperluminalPerf.EndEvent();
 
         unsafe
         {
@@ -101,6 +128,8 @@ class Program
         MSG msg;
         while (PInvoke.GetMessage(out msg, new HWND(), 0, 0))
         {
+            using SuperluminalPerf.EventMarker instrument = SuperluminalPerf.BeginEvent("WndProc");
+
             PInvoke.TranslateMessage(msg);
             PInvoke.DispatchMessage(msg);
         }
@@ -154,7 +183,10 @@ class Program
         _controller.Bounds = new Rectangle(0, 0, hwndRect.right, hwndRect.bottom);
 
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
-        _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
+
+        //_controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
+
+        _controller.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
 
         if(HotReloadManager.IsHotReloadEnabled()) // serve static files from filesystem
         {
@@ -173,8 +205,14 @@ class Program
         _controller.IsVisible = true;
     }
 
+    private static void CoreWebView2_NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+    {
+        //PInvoke.PostMessage(_hwnd, Constants.WM_CLOSE, 0, 0);
+    }
+
     private static void ServeStaticFileFromEmbeddedResources(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
     {
+        //using var instrument = SuperluminalPerf.BeginEvent(nameof(ServeStaticFileFromEmbeddedResources));
         Uri uri = new(e.Request.Uri);
         Log("Resource requested: " + uri.ToString());
 
@@ -198,6 +236,7 @@ class Program
 
     private static void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
+        using var instrument = SuperluminalPerf.BeginEvent(nameof(CoreWebView2_DOMContentLoadedFirstTime));
         Log("DomContentLoaded");
         _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
@@ -209,7 +248,6 @@ class Program
             try
             {
                 SetupAndStartFileSystemWatcher();
-                //await SetupAndRunTailwindJIT();
             }
             catch (Exception ex)
             {
@@ -217,6 +255,7 @@ class Program
                 Console.WriteLine(ex.Demystify().ToString());
             }
         }
+
     }
 
     // TODO: switch to running Tailwind on-demand instead of keeping it running with a watch. Ordering gets tricky when we have multiple filesystem watchers...
@@ -264,9 +303,24 @@ class Program
             .Buffer(TimeSpan.FromMilliseconds(150))
             .Where(x => x.Any())
             .ObserveOn(_uiThreadSyncCtx)
-            .Subscribe(args =>
+            .Subscribe(async args =>
             {
                 Console.WriteLine($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
+
+                //_controller.CoreWebView2.Reload();
+
+                //try
+                //{
+                //    var result = await CliWrap.Cli.Wrap(@"C:\Program Files\nodejs\npx.cmd")
+                //                .WithArguments("tailwindcss -i tailwind-input.css -o tailwind.css --jit --purge=./*.html")
+                //                .WithWorkingDirectory(@"C:\Users\reill\src\MaximalWebView\MaximalWebView\wwwroot")
+                //                .ExecuteBufferedAsync();
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex);
+                //}
+
                 _controller.CoreWebView2.Reload();
             });
     }

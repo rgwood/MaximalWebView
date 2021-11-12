@@ -12,8 +12,10 @@
 
   <!-- Can probably replace this with globs once we separate static file inputs and outputs -->
   <ItemGroup>
+    <None Remove="wwwroot\homer.jpg" />
     <None Remove="wwwroot\index.html" />
     <None Remove="wwwroot\tailwind.css" />
+    <EmbeddedResource Include="wwwroot\homer.jpg" />
     <EmbeddedResource Include="wwwroot\index.html">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -25,17 +27,16 @@
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="CliWrap" Version="3.3.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0-rc.2.21480.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1056-prerelease" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.588-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="RxFileSystemWatcher" Version="1.0.0" />
+    <PackageReference Include="SuperluminalPerf" Version="1.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
 </Project>

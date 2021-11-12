@@ -625,6 +625,22 @@ video {
   display: grid;
 }
 
+.hidden {
+  display: none;
+}
+
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .self-center {
   align-self: center;
 }
@@ -665,8 +681,18 @@ video {
   background-color: rgba(7, 54, 66, var(--tw-bg-opacity));
 }
 
-.p-5 {
-  padding: 1.25rem;
+.bg-solarized-orange {
+  --tw-bg-opacity: 1;
+  background-color: rgba(203, 75, 22, var(--tw-bg-opacity));
+}
+
+.bg-solarized-yellow {
+  --tw-bg-opacity: 1;
+  background-color: rgba(181, 137, 0, var(--tw-bg-opacity));
+}
+
+.p-6 {
+  padding: 1.5rem;
 }
 
 .py-1 {
@@ -706,6 +732,11 @@ video {
   color: rgba(255, 255, 255, var(--tw-text-opacity));
 }
 
+.text-solarized-yellow {
+  --tw-text-opacity: 1;
+  color: rgba(181, 137, 0, var(--tw-text-opacity));
+}
+
 .text-solarized-blue {
   --tw-text-opacity: 1;
   color: rgba(38, 139, 210, var(--tw-text-opacity));
@@ -714,6 +745,46 @@ video {
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgba(243, 244, 246, var(--tw-text-opacity));
+}
+
+.text-solarized-orange {
+  --tw-text-opacity: 1;
+  color: rgba(203, 75, 22, var(--tw-text-opacity));
+}
+
+.text-solarized-red {
+  --tw-text-opacity: 1;
+  color: rgba(220, 50, 47, var(--tw-text-opacity));
+}
+
+.text-solarized-violet {
+  --tw-text-opacity: 1;
+  color: rgba(108, 113, 196, var(--tw-text-opacity));
+}
+
+.text-solarized-base1 {
+  --tw-text-opacity: 1;
+  color: rgba(147, 161, 161, var(--tw-text-opacity));
+}
+
+.text-solarized-base0 {
+  --tw-text-opacity: 1;
+  color: rgba(131, 148, 150, var(--tw-text-opacity));
+}
+
+.text-solarized-base01 {
+  --tw-text-opacity: 1;
+  color: rgba(88, 110, 117, var(--tw-text-opacity));
+}
+
+.text-solarized-base2 {
+  --tw-text-opacity: 1;
+  color: rgba(238, 232, 213, var(--tw-text-opacity));
+}
+
+.text-solarized-base3 {
+  --tw-text-opacity: 1;
+  color: rgba(253, 246, 227, var(--tw-text-opacity));
 }
 
 .hover\:bg-solarized-cyan:hover {
