@@ -33,12 +33,72 @@
     `
             render(app, document.body);
         </script>-->
-    <h1 class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 🌍!</h1>
-    <p class="">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
+    <h1 class="mb-5 font-mono text-solarized-blue text-5xl">
+        Blog.exe v0.1 💾
+    </h1>
 
-    <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
+    <div class="text-solarized-base2 space-y-3">
+        <p>I'm going to try blogging in a Windows app. Bear with me.</p>
 
-    <img src="./homer.jpg"/>
+        <p>Recently, I've been interested in the intersection of native apps and web UI. It's a good time for that:</p>
+
+        <h2 class="text-solarized-base3 font-bold">WebView2</h2>
+
+        <p>
+            Windows 11 ships with <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">WebView2</a>, a modern "webview" control based on Edge/Chromium.
+
+            It's Windows-only for now, but <a class="underline text-blue-400" href="https://github.com/MicrosoftEdge/WebView2Feedback/issues/645#issuecomment-731474506">it will be coming to macOS and Linux soon</a>.
+        </p>
+
+        <p>
+            WebView2 is <em>good Windows software</em>. It exposes a powerful but straightforward API over COM for any Windows application to use, all the way back to Windows 7.
+            You can tell that Microsoft wants to make it easy to adopt, it's a breath of fresh air after the last decade.
+        </p>
+
+        <p>
+            For many applications, WebView2 can deliver
+            a better user experience than native UI frameworks
+            - today. Think of it as Electron with fewer downsides.
+        </p>
+
+        <h2 class="text-solarized-base3 font-bold">.NET</h2>
+        <p>
+            The .NET team has been killing it.
+            We're now able to ship small, self-contained .NET executables with great startup time and steady-state performance on any platform.
+            But cross-platform UI has remained elusive, until now.
+        </p>
+
+        <h2 class="text-solarized-base3 font-bold">Performance</h2>
+        <ul>
+            <li class="list-disc">TODO list startup time, memory use measurements</li>
+        </ul>
+
+        <h2 class="text-solarized-base3 font-bold">Web UI vs Native UI</h2>
+        <p>
+            I don't love the idea of web UI displacing native UI technologies. But it's hard to compete with the centuries of investment that Chromium represents.
+        </p>
+
+        I think people are still sleeping on WebView2, and there's a rare oppor</p>
+
+        
+
+        <p>
+            I think I can see where the winds are blowing, for once. This opens up a compelling class of applications that are small,
+
+            This means that soon we will have a remarkably fast way to
+
+            The web is a rich platform and possibly more performant than
+        </p>
+
+        <h2 class="text-solarized-base3 font-bold">Naming</h2>
+        <p>I'm not yet sure what to call this project. Ideas are very welcome.</p>
+        <img class="h-auto w-1/2 align-center" src="./homer.jpg" />
+
+    </div>
+
+    
+
+    <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Beep boop</button>
 
     <div class="hidden border border-solarized-base01 text-sm rounded-sm border-2">
         <div id="header" class="bg-solarized-base02 grid" style="grid-template-columns: 100px 1fr auto">

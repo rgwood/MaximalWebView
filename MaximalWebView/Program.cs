@@ -28,8 +28,8 @@ class Program
     private static HWND _hwnd;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    private const int StartingWidth = 920;
-    private const int StartingHeight = 1050;
+    private const int StartingWidth = 1220;
+    private const int StartingHeight = 1450;
 
      //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
@@ -99,7 +99,7 @@ class Program
                     throw new Exception("class not registered");
             }
 
-            fixed (char* windowNamePtr = $"MaximalWebView {Assembly.GetExecutingAssembly().GetName().Version}")
+            fixed (char* windowNamePtr = $"Blog.exe")
             {
                 _hwnd = PInvoke.CreateWindowEx(
                     0,
@@ -184,7 +184,7 @@ class Program
 
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
 
-        //_controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
+        _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
 
         _controller.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
 
@@ -207,7 +207,10 @@ class Program
 
     private static void CoreWebView2_NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
     {
-        //PInvoke.PostMessage(_hwnd, Constants.WM_CLOSE, 0, 0);
+        Log("NavigationCompleted");
+
+        // Uncomment to quit application. Useful for benchmarking startup time with Hyperfine
+        // PInvoke.PostMessage(_hwnd, Constants.WM_CLOSE, 0, 0);
     }
 
     private static void ServeStaticFileFromEmbeddedResources(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
