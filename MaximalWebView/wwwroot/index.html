@@ -38,9 +38,7 @@
     </h1>
 
     <div class="text-solarized-base2 space-y-3">
-        <p>I'm going to try blogging in a Windows app. Bear with me.</p>
-
-        <p>Recently, I've been interested in the intersection of native apps and web UI. It's a good time for that:</p>
+        <p>I'm going to try blogging in a Windows app. Bear with me, but the tl;dr is that it's an interesting time to experiment at the intersection of native apps and web UI.</p>
 
         <h2 class="text-solarized-base3 font-bold">WebView2</h2>
 
@@ -51,54 +49,41 @@
         </p>
 
         <p>
-            WebView2 is <em>good Windows software</em>. It exposes a powerful but straightforward API over COM for any Windows application to use, all the way back to Windows 7.
-            You can tell that Microsoft wants to make it easy to adopt, it's a breath of fresh air after the last decade.
+            WebView2 is <em>good Windows software</em>. It exposes a powerful but straightforward API over COM to any Windows application. It works all the way back to Windows 7.
+            You can tell that Microsoft wants to make it easy to adopt WebView2, which is a breath of fresh air after the last decade.
         </p>
 
         <p>
-            For many applications, WebView2 can deliver
-            a better user experience than native UI frameworks
-            - today. Think of it as Electron with fewer downsides.
+            For many applications, WebView2 can deliver a better user experience than native UI frameworks - today. It can fill the same role as Electron with fewer downsides. I think people are sleeping on WebView2.
         </p>
 
         <h2 class="text-solarized-base3 font-bold">.NET</h2>
         <p>
-            The .NET team has been killing it.
-            We're now able to ship small, self-contained .NET executables with great startup time and steady-state performance on any platform.
-            But cross-platform UI has remained elusive, until now.
+            My day job happens to involve .NET, and the .NET team has been doing remarkable work in recent years. We're now able to ship small, fast, self-contained executables for any platform.
+
+            It's a really fun time to be working in .NET... unless you want to build GUIs.
+
+            UI has been a weak point for .NET since Microsoft abandoned WPF - but if our UI is all hosted in WebView2 that problem goes away!
         </p>
 
-        <h2 class="text-solarized-base3 font-bold">Performance</h2>
-        <ul>
-            <li class="list-disc">TODO list startup time, memory use measurements</li>
-        </ul>
-
-        <h2 class="text-solarized-base3 font-bold">Web UI vs Native UI</h2>
+        <h2 class="text-solarized-base3 font-bold">What next?</h2>
         <p>
-            I don't love the idea of web UI displacing native UI technologies. But it's hard to compete with the centuries of investment that Chromium represents.
+            I'm going to keep messing around with my <a href="https://github.com/rgwood/MinimalWebView">MinimalWebView</a> and <a href="https://github.com/rgwood/MaximalWebView">MaximalWebView</a>
+            projects to host WebView2 in a .NET 6 exe. I'll try to document my progress by shipping "blog post" exes like this with demos for new functionality.
         </p>
 
-        I think people are still sleeping on WebView2, and there's a rare oppor</p>
+        <p>Once WebView2 is available for Mac and Linux I'll look more seriously into porting to those platforms.</p>
 
-        
+        <p>I'd also like to ship something <em>useful</em> in this form factor soon. I have some ideas but I need to pick a JS data grid library first.</p>
 
-        <p>
-            I think I can see where the winds are blowing, for once. This opens up a compelling class of applications that are small,
-
-            This means that soon we will have a remarkably fast way to
-
-            The web is a rich platform and possibly more performant than
-        </p>
-
-        <h2 class="text-solarized-base3 font-bold">Naming</h2>
-        <p>I'm not yet sure what to call this project. Ideas are very welcome.</p>
+        <p>The current names are placeholders, I'm not yet sure what to call these projects. Ideas are very welcome:</p>
         <img class="h-auto w-1/2 align-center" src="./homer.jpg" />
 
     </div>
 
     
 
-    <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Beep boop</button>
+    <!--<button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Beep boop</button>-->
 
     <div class="hidden border border-solarized-base01 text-sm rounded-sm border-2">
         <div id="header" class="bg-solarized-base02 grid" style="grid-template-columns: 100px 1fr auto">

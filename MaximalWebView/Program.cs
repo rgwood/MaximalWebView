@@ -29,7 +29,7 @@ class Program
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private const int StartingWidth = 1220;
-    private const int StartingHeight = 1450;
+    private const int StartingHeight = 1720;
 
      //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
