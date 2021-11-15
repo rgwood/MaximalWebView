@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Web.WebView2.Core;
+﻿using Microsoft.Web.WebView2.Core;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -12,7 +11,7 @@ using Windows.Win32.Graphics.Dwm;
 using System.Diagnostics;
 using CliWrap;
 using CliWrap.Buffered;
-using Microsoft.Extensions.Logging.Abstractions;
+using Serilog;
 
 namespace MaximalWebView;
 
@@ -26,6 +25,7 @@ class Program
     internal static CoreWebView2Controller _controller;
     internal static UiThreadSynchronizationContext _uiThreadSyncCtx;
     private static HWND _hwnd;
+    private static ILogger _logger;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     private const int StartingWidth = 920;
@@ -44,34 +44,17 @@ class Program
     [STAThread]
     static int Main(string[] args)
     {
-         //SuperluminalPerf.Initialize();
-
-#if DEBUG // Console.WriteLine() lazy debugging enabler
-        PInvoke.AllocConsole();
-#endif
-
-        SuperluminalPerf.BeginEvent("Initializing logger");
-
-#if DEBUG // Full console log initialization takes ~200ms in Superluminal. Disable for fast startup
-        using var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder
-                .AddFilter("Microsoft", LogLevel.Warning)
-                .AddFilter("System", LogLevel.Warning)
-                .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug);
-            //.AddConsole();
-        });
-
-        ILogger logger = loggerFactory.CreateLogger<Program>();
+#if DEBUG 
+        PInvoke.AllocConsole(); // Console.WriteLine() lazy debugging enabler
+        _logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
 #else
-        ILogger logger = NullLogger.Instance;
+        _logger = Serilog.Core.Logger.None;
 #endif
 
-        SuperluminalPerf.EndEvent();
-
-        SuperluminalPerf.BeginEvent("Logging");
-        logger.LogInformation($"Example log message");
-        SuperluminalPerf.EndEvent();
+        _logger.Information($"Example log message");
 
         unsafe
         {
@@ -128,8 +111,6 @@ class Program
         MSG msg;
         while (PInvoke.GetMessage(out msg, new HWND(), 0, 0))
         {
-            using SuperluminalPerf.EventMarker instrument = SuperluminalPerf.BeginEvent("WndProc");
-
             PInvoke.TranslateMessage(msg);
             PInvoke.DispatchMessage(msg);
         }
@@ -162,13 +143,10 @@ class Program
         if (_controller != null)
             _controller.Bounds = new Rectangle(0, 0, width, height);
 
-        // TODO hook up Serilog instead of hacky console logs
-#if DEBUG
-        Console.WriteLine($"OnSize({width}, {height})");
-#endif
+        _logger.Verbose($"OnSize({width}, {height})");
     }
 
-    private static void Log(string s) => Console.WriteLine($"{_timeSinceLaunch.ElapsedMilliseconds}ms: {s}");
+    private static void Log(string s) => _logger.Information($"{_timeSinceLaunch.ElapsedMilliseconds}ms: {s}");
 
     private static async void CreateCoreWebView2(HWND hwnd)
     {
@@ -236,7 +214,6 @@ class Program
 
     private static void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
-        using var instrument = SuperluminalPerf.BeginEvent(nameof(CoreWebView2_DOMContentLoadedFirstTime));
         Log("DomContentLoaded");
         _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
 
@@ -251,11 +228,9 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error setting up Hot Reload:");
-                Console.WriteLine(ex.Demystify().ToString());
+                _logger.Error(ex.Demystify(), "Error setting up Hot Reload");
             }
         }
-
     }
 
     // TODO: switch to running Tailwind on-demand instead of keeping it running with a watch. Ordering gets tricky when we have multiple filesystem watchers...
@@ -292,7 +267,7 @@ class Program
 
     private static void SetupAndStartFileSystemWatcher()
     {
-        Console.WriteLine("Setting up filesystem watcher...");
+        _logger.Information("Setting up filesystem watcher...");
         _staticFileWatcher = new ObservableFileSystemWatcher(new FileSystemWatcher(StaticFileDirectoryPath));
         _staticFileWatcher.Start();
 
@@ -303,11 +278,9 @@ class Program
             .Buffer(TimeSpan.FromMilliseconds(150))
             .Where(x => x.Any())
             .ObserveOn(_uiThreadSyncCtx)
-            .Subscribe(async args =>
+            .Subscribe(args =>
             {
-                Console.WriteLine($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
-
-                //_controller.CoreWebView2.Reload();
+                _logger.Information($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
 
                 //try
                 //{
