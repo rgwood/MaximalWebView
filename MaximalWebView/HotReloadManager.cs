@@ -15,7 +15,8 @@ internal static class HotReloadManager
     public static void UpdateApplication(Type[]? types)
     {
         Console.WriteLine($"UpdateApplication called for {types?.Length ?? 0} type(s): {string.Join(';', types?.Select(t => t.Name) ?? Array.Empty<string>())}");
-        Program._uiThreadSyncCtx.Post(_ => { 
+        Program._uiThreadSyncCtx.Post(_ =>
+        {
             Program._controller.CoreWebView2.Reload();
         }, null);
     }

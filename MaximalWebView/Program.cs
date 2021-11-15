@@ -1,17 +1,17 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
-using RxFileSystemWatcher;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.UI.WindowsAndMessaging;
-using Windows.Win32.Graphics.Dwm;
-using System.Diagnostics;
 using CliWrap;
 using CliWrap.Buffered;
+using Microsoft.Web.WebView2.Core;
+using RxFileSystemWatcher;
 using Serilog;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Dwm;
+using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace MaximalWebView;
 
@@ -31,7 +31,7 @@ class Program
     private const int StartingWidth = 920;
     private const int StartingHeight = 1050;
 
-     //actually 002b36, Windows uses BBGGRR not RRGGBB
+    //actually 002b36, Windows uses BBGGRR not RRGGBB
     const uint solarizedDarkBgColor = 0x362b00;
 
     private static Stopwatch _timeSinceLaunch = Stopwatch.StartNew();
@@ -166,7 +166,7 @@ class Program
 
         _controller.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
 
-        if(HotReloadManager.IsHotReloadEnabled()) // serve static files from filesystem
+        if (HotReloadManager.IsHotReloadEnabled()) // serve static files from filesystem
         {
             // TODO find a better hostname than maximalwebview.example
             _controller.CoreWebView2.SetVirtualHostNameToFolderMapping("maximalwebview.example",
