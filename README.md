@@ -10,6 +10,6 @@ A version of [MinimalWebView](https://github.com/rgwood/MinimalWebView) with mor
 
 - [ ] Add test project
 - [ ] Set up CI build+test (GitHub Actions)
-- [ ] Clean up wwwroot folder for a better split between build inputs and outputs
-- [ ] Add proper logging instead of Console.WriteLine() everywhere. Serilog?
+- [x] Clean up wwwroot folder for a better split between build inputs and outputs
+- [x] Add proper logging instead of Console.WriteLine() everywhere. Serilog?
 - [ ] Start publishing exes as releases on GitHub

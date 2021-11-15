@@ -18,7 +18,7 @@ namespace MaximalWebView;
 class Program
 {
     internal const uint WM_SYNCHRONIZATIONCONTEXT_WORK_AVAILABLE = Constants.WM_USER + 1;
-    private const string StaticFileDirectory = "wwwroot";
+    private const string StaticFileDirectory = "static_files";
     static string StaticFileDirectoryPath => Path.Combine(ProjectDirectoryPath.Value, StaticFileDirectory);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -162,7 +162,7 @@ class Program
 
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
 
-        //_controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
+        _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
 
         _controller.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
 
@@ -221,7 +221,7 @@ class Program
         // TODO move this into hot reload manager
         if (HotReloadManager.IsHotReloadEnabled())
         {
-            Console.WriteLine("Hot reload is enabled.");
+            _logger.Debug("Hot reload is enabled.");
             try
             {
                 SetupAndStartFileSystemWatcher();
