@@ -216,8 +216,8 @@ class Program
 
     private static void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
-        Log("DomContentLoaded");
         _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
+        Log("DomContentLoaded");
 
         // Set up Hot Reload once at startup
         // TODO move this into hot reload manager
