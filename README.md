@@ -1,5 +1,7 @@
 # MaximalWebView (WIP)
 
+[![build](https://github.com/rgwood/MaximalWebView/actions/workflows/build.yml/badge.svg)](https://github.com/rgwood/MaximalWebView/actions/workflows/build.yml)
+
 ## tl;dr
 
 A version of [MinimalWebView](https://github.com/rgwood/MinimalWebView) with more features (hot reload, etc.). Still under development.
@@ -9,7 +11,8 @@ A version of [MinimalWebView](https://github.com/rgwood/MinimalWebView) with mor
 ## TODO
 
 - [ ] Add test project
-- [ ] Set up CI build+test (GitHub Actions)
+- [x] Set up CI build
+- [ ] Set up CI test
 - [x] Clean up wwwroot folder for a better split between build inputs and outputs
 - [x] Add proper logging instead of Console.WriteLine() everywhere. Serilog?
 - [ ] Start publishing exes as releases on GitHub
