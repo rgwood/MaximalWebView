@@ -28,6 +28,8 @@ class Program
     private static ILogger _logger;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+    private static HostObject _hostObject = new HostObject();
+
     private const int StartingWidth = 920;
     private const int StartingHeight = 1050;
 
@@ -161,10 +163,10 @@ class Program
         _controller.Bounds = new Rectangle(0, 0, hwndRect.right, hwndRect.bottom);
 
         _controller.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
-
         _controller.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoadedFirstTime;
-
         _controller.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+
+        _controller.CoreWebView2.AddHostObjectToScript("dotnet", _hostObject);
 
         if (HotReloadManager.IsHotReloadEnabled()) // serve static files from filesystem
         {

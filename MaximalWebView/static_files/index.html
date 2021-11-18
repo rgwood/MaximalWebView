@@ -33,7 +33,7 @@
     `
             render(app, document.body);
         </script>-->
-    <h1 class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 🌍!</h1>
+    <h1 id="header" class="mb-5 font-mono text-solarized-blue text-5xl">Hello, 🌍!</h1>
     <p class="">This is a tiny .NET 6 Windows application hosting web UI in WebView2. No WinForms, no WPF, no WinUI - just a Win32 message pump.</p>
 
     <button id="btn1" class="bg-solarized-blue hover:bg-solarized-cyan font-bold my-5 py-1 px-4 rounded-md self-center">Click me to demo .NET-JS interop!</button>
@@ -49,10 +49,11 @@
             <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
         </div>
     </div>
-
     <script>
         btn1.onclick = (event) => {
-            window.chrome.webview.postMessage("😎💾😎");
+            <!--window.chrome.webview.postMessage("😎💾😎"); -->
+                let num =  window.chrome.webview.hostObjects.sync.dotnet.Increment();
+            document.getElementById('header').innerText = "🤖" + num;
         }
     </script>
 </body>
