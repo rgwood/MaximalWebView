@@ -16,3 +16,5 @@ A version of [MinimalWebView](https://github.com/rgwood/MinimalWebView) with mor
 - [x] Clean up wwwroot folder for a better split between build inputs and outputs
 - [x] Add proper logging instead of Console.WriteLine() everywhere. Serilog?
 - [ ] Start publishing exes as releases on GitHub
+- [ ] Tailwind hot reload: run tailwind watch if present
+- [ ] Tailwind hot reload: kill Tailwind process if MaximalWebView process dies (using JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE)
