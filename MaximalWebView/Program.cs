@@ -3,10 +3,10 @@ using System.Drawing;
 using System.Reactive.Linq;
 using System.Reflection;
 using CliWrap;
-using CliWrap.Buffered;
 using Microsoft.Web.WebView2.Core;
 using RxFileSystemWatcher;
 using Serilog;
+using Utils;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
@@ -39,9 +39,8 @@ class Program
     private static Stopwatch _timeSinceLaunch = Stopwatch.StartNew();
 
     // hot reload stuff
-    private const string NpxPath = @"C:\Program Files\nodejs\npx.cmd";
     private static ObservableFileSystemWatcher? _staticFileWatcher;
-    private static CancellationTokenSource? _npxTaskCTS;
+    private static CancellationTokenSource _tailwindCTS = new();
 
     [STAThread]
     static int Main(string[] args)
@@ -132,7 +131,7 @@ class Program
                 break;
             case Constants.WM_CLOSE:
                 _uiThreadSyncCtx.RunAvailableWorkOnCurrentThread();
-                _npxTaskCTS?.Cancel();
+                _tailwindCTS.Cancel();
                 PInvoke.PostQuitMessage(0);
                 break;
         }
@@ -214,10 +213,26 @@ class Program
         }
     }
 
-    private static void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
+    private static async void CoreWebView2_DOMContentLoadedFirstTime(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
     {
         _controller.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoadedFirstTime;
         Log("DomContentLoaded");
+
+        // Test code to debug Tailwind watch not generating console output
+        // try
+        // {
+        //     Log($"Running Tailwind from {ProjectDirectoryPath.Value}");
+        //     await Cli.Wrap("tailwindcss")
+        //         .WithArguments("-i ./tailwind/tailwind-input.css -c ./tailwind/tailwind.config.js -o ./static_files/tailwind.css --content ./static_files/*.html --watch")
+        //         .WithWorkingDirectory(ProjectDirectoryPath.Value)
+        //         .WithStandardOutputPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
+        //         .WithStandardErrorPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
+        //         .ExecuteAsync();
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine(ex);
+        // }
 
         // Set up Hot Reload once at startup
         // TODO move this into hot reload manager
@@ -226,7 +241,9 @@ class Program
             _logger.Debug("Hot reload is enabled.");
             try
             {
-                SetupAndStartFileSystemWatcher();
+
+                // SetupAndStartFileSystemWatcher();
+                // await SetupAndRunTailwindJIT(_tailwindCTS.Token);
             }
             catch (Exception ex)
             {
@@ -236,37 +253,24 @@ class Program
     }
 
     // TODO: switch to running Tailwind on-demand instead of keeping it running with a watch. Ordering gets tricky when we have multiple filesystem watchers...
-    private static async Task SetupAndRunTailwindJIT()
+    private static async Task SetupAndRunTailwindJIT(CancellationToken cancellationToken)
     {
         // TODO: clean up any orphaned Node processes from previous runs
         // We handle cleanup when the application is closed gracefully, but closing the VS debugger
         // terminates the application with no opportunity for cleanup
-        _npxTaskCTS = new CancellationTokenSource();
 
-        string GetEnvVariableOrThrow(string name) =>
-            Environment.GetEnvironmentVariable("ProgramFiles") ?? throw new Exception($"Could not find env variable %{name}%");
+        Console.WriteLine($"Running Tailwind watcher in {ProjectDirectoryPath.Value}");
 
-        string NodePath = Path.Combine(GetEnvVariableOrThrow("ProgramFiles"), @"nodejs\node.exe");
-        string TailwindCliPath = Path.Combine(GetEnvVariableOrThrow("AppData"), @"npm\node_modules\tailwindcss\lib\cli.js");
-
-        // We are calling node.exe directly instead of npx because npx introduces a
-        // ghost process that hangs around even if the task is cancelled :(
-        await Cli.Wrap(NodePath)
-            .WithArguments(new string[] {
-                    TailwindCliPath,
-                    "-i",
-                    "tailwind-input.css",
-                    "-o",
-                    "tailwind.css",
-                    "--watch",
-                    "--jit",
-                    "--purge=./*.html" })
-            .WithWorkingDirectory(StaticFileDirectoryPath)
-            .WithStandardOutputPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
-            .WithStandardErrorPipe(PipeTarget.ToDelegate(l => Console.WriteLine(l)))
-            .ExecuteAsync(_npxTaskCTS.Token);
+        // TODO: why isn't this giving any console output?
+        // Is Tailwind detecting when the command is run programatically?
+        await Cli.Wrap("tailwindcss")
+            .WithArguments("-i ./tailwind/tailwind-input.css  -c ./tailwind/tailwind.config.js -o ./static_files/tailwind.css --content=./static_files/*.html --watch")
+            .WithWorkingDirectory(ProjectDirectoryPath.Value)
+            .WithPipeToConsole()
+            .ExecuteAsync(cancellationToken);
     }
 
+    // TODO: replace this with the nice IAsyncEnumerable watcher
     private static void SetupAndStartFileSystemWatcher()
     {
         _logger.Information("Setting up filesystem watcher...");
@@ -283,19 +287,6 @@ class Program
             .Subscribe(args =>
             {
                 _logger.Information($"FileSystemEvent: {string.Join(',', args.Select(a => $"{a.ChangeType} {a.Name}"))}");
-
-                //try
-                //{
-                //    var result = await CliWrap.Cli.Wrap(@"C:\Program Files\nodejs\npx.cmd")
-                //                .WithArguments("tailwindcss -i tailwind-input.css -o tailwind.css --jit --purge=./*.html")
-                //                .WithWorkingDirectory(@"C:\Users\reill\src\MaximalWebView\MaximalWebView\wwwroot")
-                //                .ExecuteBufferedAsync();
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex);
-                //}
-
                 _controller.CoreWebView2.Reload();
             });
     }
