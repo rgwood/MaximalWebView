@@ -252,12 +252,15 @@ class Program
         }
     }
 
-    // TODO: switch to running Tailwind on-demand instead of keeping it running with a watch. Ordering gets tricky when we have multiple filesystem watchers...
     private static async Task SetupAndRunTailwindJIT(CancellationToken cancellationToken)
     {
-        // TODO: clean up any orphaned Node processes from previous runs
+        // Clean up any orphaned Tailwind processes from previous runs
         // We handle cleanup when the application is closed gracefully, but closing the VS debugger
         // terminates the application with no opportunity for cleanup
+        foreach (var process in Process.GetProcessesByName("tailwindcss"))
+        {
+            process.Kill();
+        }
 
         Console.WriteLine($"Running Tailwind watcher in {ProjectDirectoryPath.Value}");
 
